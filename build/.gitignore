@@ -4,4 +4,12 @@ Makefile
 cmake_install.cmake
 *.a
 src/*
-
+*.vcxproj
+*.filters
+*.user
+Debug/*
+Release/*
+Win32/*
+bldlog-1.txt
+*.dir/*
+*.sln
