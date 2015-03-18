@@ -20,6 +20,8 @@
 #if defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
 #include <direct.h> // for _chdir, ...
+#else
+#include <utime.h> // for utime, ...
 #endif
 #include "app_config.h"
 #include "fgx_gzlib.h"
@@ -195,7 +197,7 @@ void change_file_date(const char *filename, uLong dosdate, tm_unz tmu_date )
     SetFileTime(hFile,&ftm,&ftLastAcc,&ftm);
     CloseHandle(hFile);
 #else
-#ifdef unix || __APPLE__
+#if defined(unix) || defined(__APPLE__)
     struct utimbuf ut;
     struct tm newdate;
     newdate.tm_sec = tmu_date.tm_sec;
