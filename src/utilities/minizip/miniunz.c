@@ -38,7 +38,8 @@
 #define FSEEKO_FUNC(stream, offset, origin) fseeko64(stream, offset, origin)
 #endif
 
-
+#include <sys/types.h>
+#include <sys/stat.h> // for mkdir, ... in unix
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -97,7 +98,7 @@ void change_file_date(filename,dosdate,tmu_date)
   SetFileTime(hFile,&ftm,&ftLastAcc,&ftm);
   CloseHandle(hFile);
 #else
-#ifdef unix || __APPLE__
+#if (defined(unix) || defined(__APPLE__))
   struct utimbuf ut;
   struct tm newdate;
   newdate.tm_sec = tmu_date.tm_sec;
