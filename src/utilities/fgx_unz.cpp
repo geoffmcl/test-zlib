@@ -279,14 +279,19 @@ __int64 get_last_file_size64() { return buf64.st_size; }
  *  of dirname can name a new directory
 \*/
 
+#ifdef WIN32
+#define MKDIR _mkdir
+#else
+#define MKDIR(a) mkdir(a,0775)
+#endif
+
 static int mymkdir(const char* dirname)
 {
     int ret = unze_none;
-#ifdef _WIN32
     char buff[264];
     DiskType dt;
     int c, i, max = (int)strlen(dirname);
-    // in windows MUST do directory by directory
+    // in ALL CASES MUST do directory by directory
     for (i = 0; i < max; i++) {
         c = dirname[i];
         if (( c == '\\' ) || ( c == '/' )) {
@@ -299,9 +304,9 @@ static int mymkdir(const char* dirname)
                         err_list << err_buff;
                         return unze_file_in_way;
                     }
-                    ret = _mkdir(buff);
+                    ret = MKDIR(buff);
                     if (ret) {
-                        sprintf(err_buff,"Error creating dir %s!\n", buff);
+                        sprintf(err_buff,"Error creating dir '%s'! (%d)\n", buff, errno);
                         err_list << err_buff;
                         return unze_no_create_dir;
                     }
@@ -319,19 +324,14 @@ static int mymkdir(const char* dirname)
                 err_list << err_buff;
                 return unze_file_in_way;
             }
-            ret = _mkdir(buff);
+            ret = MKDIR(buff);
             if (ret) {
-                sprintf(err_buff,"Error creating dir %s!\n", buff);
+                sprintf(err_buff,"Error creating dir '%s'! (%d)\n", buff, errno);
                 err_list << err_buff;
                 return unze_no_create_dir;
             }
         }
     }
-#elif unix
-    ret = mkdir (dirname,0775);
-#elif __APPLE__
-    ret = mkdir (dirname,0775);
-#endif
     return ret;
 }
 
