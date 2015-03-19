@@ -1,1 +1,10 @@
 bldlog-1.txt
+liblibminizip.a
+libsimgear.a
+libutilities.a
+libzlib.a
+src
+miniunz
+minizip
+test-zlib
+
