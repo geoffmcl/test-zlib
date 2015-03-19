@@ -142,7 +142,7 @@ int parse_args( int argc, char **argv )
                     return 1;
                 }
                 break;
-            case 'd':
+            case 'o':
                 if (i2 < argc) {
                     i++;
                     sarg = argv[i];
