@@ -358,8 +358,9 @@ static int makedir (char *newdir)
         buffer[len-1] = '\0';
     }
     iret = mymkdir(buffer);
-    if (iret)
-    {
+    if (iret) {
+        sprintf(err_buff,"mymkdir failed to create dir '%s'\n", buffer);
+        err_list << err_buff;
         free(buffer);
         return iret;
     }
@@ -375,7 +376,8 @@ static int makedir (char *newdir)
         *p = 0;
         iret = mymkdir(buffer);
         if (iret) {
-            //printf("couldn't create directory %s\n",buffer);
+            sprintf(err_buff,"mymkdir couldn't create directory '%s'\n",buffer);
+            err_list << err_buff;
             free(buffer);
             return iret;
         }
@@ -430,7 +432,10 @@ int do_extract_currentfile(unzFile uf, const int *popt_extract_without_path,
         if ((*popt_extract_without_path) == 0)
         {
             //printf("creating directory: %s\n", filename_inzip);
-            mymkdir(filename_inzip);
+            if (mymkdir(filename_inzip) != unze_none) {
+                sprintf(err_buff,"mymkdir unable to create '%s'\n", filename_inzip);
+                err_list << err_buff;
+            }
         }
     }
     else
@@ -500,7 +505,7 @@ int do_extract_currentfile(unzFile uf, const int *popt_extract_without_path,
                 fout = FOPEN_FUNC(write_filename,"wb");
             }
 
-            if (fout==NULL)
+            if (fout == NULL)
             {
                 sprintf(err_buff,"error failed create %s\n",write_filename);
                 err_list << err_buff;
