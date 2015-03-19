@@ -13,3 +13,7 @@ Win32/*
 bldlog-1.txt
 *.dir/*
 *.sln
+miniunz
+minizip
+test-zlib
+
