@@ -16,4 +16,7 @@ bldlog-1.txt
 miniunz
 minizip
 test-zlib
+ipch/*
+*.sdf
+*.suo
 
