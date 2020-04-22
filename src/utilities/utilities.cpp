@@ -188,14 +188,14 @@ QString util_getTimestg(void)
 //**  cut and plaster by pete from email from Geoff GBH
 
 
-typedef struct tagABC {
+typedef struct tagMYABC {
  char abc;
  char * morse;
  char * telephony;
  char * phonetic;
-}ABC, * PABC;
+}MYABC, * PMYABC;
 
-static ABC abc[] = {
+static MYABC abc[] = {
  { 'A', (char *)".-", (char *)"Alfa", (char *)"AL-FAH" },
  { 'B', (char *)"-...", (char *)"Bravo", (char *)"BRAH-VOH" },
  { 'C', (char *)"-.-.", (char *)"Charlie", (char *)"CHAR-LEE" },
@@ -237,7 +237,7 @@ static ABC abc[] = {
 
 char * abc_to_morse(char ch)
 {
-   PABC pabc = &abc[0];
+   PMYABC pabc = &abc[0];
    while (pabc->morse) {
        if (ch == pabc->abc)
            return pabc->morse;
@@ -247,7 +247,7 @@ char * abc_to_morse(char ch)
 }
 char * abc_to_telephony(char ch)
 {
-   PABC pabc = &abc[0];
+   PMYABC pabc = &abc[0];
    while (pabc->morse) {
        if (ch == pabc->abc)
            return pabc->telephony;
@@ -257,7 +257,7 @@ char * abc_to_telephony(char ch)
 }
 char * abc_to_phonetic(char ch)
 {
-   PABC pabc = &abc[0];
+   PMYABC pabc = &abc[0];
    while (pabc->morse) {
        if (ch == pabc->abc)
            return pabc->phonetic;
@@ -268,7 +268,7 @@ char * abc_to_phonetic(char ch)
 
 char telephony_to_abc(char * pch)
 {
-   PABC pabc = &abc[0];
+   PMYABC pabc = &abc[0];
    while (pabc->morse) {
        if (strcmp(pch,pabc->telephony) == 0)
            return pabc->abc;
@@ -278,7 +278,7 @@ char telephony_to_abc(char * pch)
 }
 char *telephony_to_morse(char * pch)
 {
-   PABC pabc = &abc[0];
+   PMYABC pabc = &abc[0];
    while (pabc->morse) {
        if (strcmp(pch,pabc->telephony) == 0)
            return pabc->morse;
@@ -288,7 +288,7 @@ char *telephony_to_morse(char * pch)
 }
 char *telephony_to_phonetic(char * pch)
 {
-   PABC pabc = &abc[0];
+   PMYABC pabc = &abc[0];
    while (pabc->morse) {
        if (strcmp(pch,pabc->telephony) == 0)
            return pabc->phonetic;
@@ -532,10 +532,10 @@ QString util_browseNewFile(QWidget * parent, QString prompt, QString current,
 double util_DistEst_km(double lat1, double lon1, double lat2, double lon2)
 {
     double d, dd;
-    double small = 0.0000001;
+    double vsmall = 0.0000001;
     double dt = fabs(lat1 - lat2);
     double dn = fabs(lon1 - lon2);
-    if ((dt < small)&&(dn < small))
+    if ((dt < vsmall)&&(dn < vsmall))
         return 0.0; // this is to try to avoid a 'nan'
     dt = lat1 * DEG2RAD;
     dn = lat2 * DEG2RAD;

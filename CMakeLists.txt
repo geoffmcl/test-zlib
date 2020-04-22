@@ -18,6 +18,7 @@ set( LIB_TYPE STATIC )  # set default static
 option( BUILD_SHARED_LIB "Set ON to build shared libraries"            OFF )
 option( TRY_EXTERN_ZLIB  "Set ON to search and use external ZLIB"      OFF )
 option( BUILD_WITH_QT4   "Set OFF to attempt to use Qt5, if installed" ON  )
+option( LIST_ALL_VARIABLES "Set ON to get a noisy output"               OFF  )
 
 add_definitions( -DTEST_ZLIB )
 
@@ -51,47 +52,86 @@ set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_FLAGS} ${MSVC_FLAGS} -D_REENTRANT
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} ${MSVC_FLAGS} -D_REENTRANT" )
 set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MSVC_LD_FLAGS}" )
 
+set(components Core Gui Network WebEngine widgets Xml XmlPatterns )
+##set(components QtCore QtGui QtNetwork QtWebkit QtXml QtXmlPatterns )
 if( NOT BUILD_WITH_QT4 )
     # try Qt5 first, and prefer that if found
-    find_package(Qt5Core QUIET)
+    # find_package(Qt5Core QUIET)
+	find_package( Qt5 COMPONENTS ${components} )
 endif()
 
 if (Qt5Core_FOUND)
-    set(QTCORE_LIBRARIES ${Qt5Core_LIBRARIES})
+	message(STATUS "*** Qt5Core FOUND libs ${Qt5Core_LIBRARIES} inc ${Qt5Core_INCLUDE_DIRS}")
+    list(APPEND QT_LIBRARIES ${Qt5Core_LIBRARIES})
+	list(APPEND QT_LIBRARIES ${Qt5Core_QTMAIN_LIBRARIES})	# =Qt5::WinMain
+	# -- === Qt5Gui_EGL_LIBRARIES=Qt5::Gui_EGL
+	list(APPEND QT_LIBRARIES ${Qt5Gui_LIBRARIES})	# =Qt5::Gui
+	#-- === Qt5Gui_OPENGL_LIBRARIES=Qt5::Gui_GLESv2
+	list(APPEND QT_LIBRARIES ${Qt5Network_LIBRARIES})	# =Qt5::Network
+    list(APPEND QT_LIBRARIES ${Qt5Positioning_LIBRARIES})	# =Qt5::Positioning
+    list(APPEND QT_LIBRARIES ${Qt5QmlModels_LIBRARIES})		# =Qt5::QmlModels
+    list(APPEND QT_LIBRARIES ${Qt5Qml_LIBRARIES})			# =Qt5::Qml
+    list(APPEND QT_LIBRARIES ${Qt5Quick_LIBRARIES})			# =Qt5::Quick
+    list(APPEND QT_LIBRARIES ${Qt5WebChannel_LIBRARIES})	# =Qt5::WebChannel
+    list(APPEND QT_LIBRARIES ${Qt5WebEngineCore_LIBRARIES})	# =Qt5::WebEngineCore
+    list(APPEND QT_LIBRARIES ${Qt5WebEngine_LIBRARIES})		# =Qt5::WebEngine
+    list(APPEND QT_LIBRARIES ${Qt5Widgets_LIBRARIES})		# =Qt5::Widgets
+    list(APPEND QT_LIBRARIES ${Qt5XmlPatterns_LIBRARIES})	# =Qt5::XmlPatterns
+    list(APPEND QT_LIBRARIES ${Qt5Xml_LIBRARIES})			# =Qt5::Xml	
+	
     # if there is no QT_ROOT, try to deduce it from Qt QtCore include
     if ("${QT_ROOT}" STREQUAL "")
         set(QT_ROOT ${QT_QTCORE_INCLUDE_DIR}/../..)
-    endif()    
-    include_directories(${Qt5Core_INCLUDE_DIRS})
+    endif()
+	list(APPEND QT_INC_DIRS ${Qt5Core_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5Gui_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5Network_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5Positioning_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5QmlModels_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5Qml_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5Quick_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5WebChannel_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5WebEngineCore_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5WebEngine_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5Widgets_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5XmlPatterns_INCLUDE_DIRS})
+	list(APPEND QT_INC_DIRS ${Qt5Xml_INCLUDE_DIRS})
+	list(REMOVE_DUPLICATES QT_INC_DIRS)
+    include_directories(${QT_INC_DIRS})
+	message( STATUS "*** Inc DIR list ${QT_INC_DIRS}")
 
     macro(qt_wrap_cpp)
         qt5_wrap_cpp(${ARGN})
     endmacro()
 else()
-    set(qt_min_version "4.5.0")
-    #find_package(Qt4 REQUIRED)
-    #set(QT_USE_QTGUI false)
-    #include(${QT_USE_FILE})
-    # qtestlib
-    set(components QtCore QtGui QtNetwork QtWebkit QtXml QtXmlPatterns )
-    message(STATUS "*** Finding Qt4 components ${components}")
-    find_package ( Qt4 COMPONENTS ${components} REQUIRED )
-    include ( ${QT_USE_FILE} )
-    add_definitions( ${QT_DEFINITIONS} )
-    # debug messages
-    message(STATUS "*** include ( ${QT_USE_FILE} )")
-    message(STATUS "*** defs ${QT_DEFINITIONS}")
-    message(STATUS "*** libs ${QT_LIBRARIES}")
-    # list(APPEND add_LIBS ${QT_LIBRARIES})
-    set( QT_USE_QTNETWORK TRUE )
-    set( QT_USE_QTXML TRUE )
-    set( QT_USE_QTXMLPATTERNS TRUE )
-    set( QT_USE_QTWEBKIT TRUE )
-    include_directories(${QT_INCLUDES})
+	if (BUILD_WITH_QT4)
+		set(qt_min_version "4.5.0")
+		#find_package(Qt4 REQUIRED)
+		#set(QT_USE_QTGUI false)
+		#include(${QT_USE_FILE})
+		# qtestlib
+		set(components QtCore QtGui QtNetwork QtWebkit QtXml QtXmlPatterns )
+		message(STATUS "*** Finding Qt4 components ${components}")
+		find_package ( Qt4 COMPONENTS ${components} REQUIRED )
+		include ( ${QT_USE_FILE} )
+		add_definitions( ${QT_DEFINITIONS} )
+		# debug messages
+		message(STATUS "*** include ( ${QT_USE_FILE} )")
+		message(STATUS "*** defs ${QT_DEFINITIONS}")
+		message(STATUS "*** libs ${QT_LIBRARIES}")
+		# list(APPEND add_LIBS ${QT_LIBRARIES})
+		set( QT_USE_QTNETWORK TRUE )
+		set( QT_USE_QTXML TRUE )
+		set( QT_USE_QTXMLPATTERNS TRUE )
+		set( QT_USE_QTWEBKIT TRUE )
+		include_directories(${QT_INCLUDES})
 
-    macro(qt_wrap_cpp)
-        qt4_wrap_cpp(${ARGN})
-    endmacro()
+		macro(qt_wrap_cpp)
+			qt4_wrap_cpp(${ARGN})
+		endmacro()
+	else ()
+		message( FATAL_ERROR "*** Qt5 NOT FOUND!")
+	endif ()
 endif()
 
 # Use system zlib on unix and Qt ZLIB on Windows
@@ -265,5 +305,18 @@ target_link_libraries( ${name} ${add_LIBS} ${ZLIB_LIBRARIES})
 if (MSVC)
     set_target_properties( ${name} PROPERTIES DEBUG_POSTFIX d )
 endif ()
+
+##################################################################
+######## DEBUG ONLY - Try to look at ALL vars defined
+if (LIST_ALL_VARIABLES)
+    message(STATUS "******** SHOW ALL VARS *********")
+    get_cmake_property(_variableNames VARIABLES)
+    foreach (_variableName ${_variableNames})
+        message(STATUS "=== ${_variableName}=${${_variableName}}")
+    endforeach()
+    message(STATUS "******** END LIST *********")
+endif ()    
+##################################################################
+
 
 # eof
